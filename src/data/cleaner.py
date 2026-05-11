@@ -97,3 +97,49 @@ class DataCleaner:
         if len(zero_volume) > 0:
             log.warning(f"Found {len(zero_volume)} rows with zero or negative volume")
             return False, zero_volume
+        
+        log.debug("Volume check passed")
+        return True, []
+    
+    @classmethod
+    def validate_all(cls, data: pd.DataFrame) -> Tuple[bool, dict]:
+        """すべての検証を実行
+        
+        Args:
+            data: 検証するDataFrame
+            
+        Returns:
+            (all_ok, details_dict)
+        """
+        details = {}
+        all_ok = True
+        
+        # 列チェック
+        if not cls.validate_columns(data):
+            all_ok = False
+            details['columns'] = 'Missing required columns'
+        
+        # 欠損値チェック
+        ok, indices = cls.check_missing(data)
+        if not ok:
+            all_ok = False
+            details['missing'] = f"{len(indices)} rows with missing values"
+        
+        # 重複チェック
+        ok, indices = cls.check_duplicates(data)
+        if not ok:
+            all_ok = False
+            details['duplicates'] = f"{len(indices)} duplicate timestamps"
+        
+        # OHLC関係チェック
+        if not cls.validate_ohlc_relations(data):
+            all_ok = False
+            details['ohlc'] = 'Invalid OHLC relations found'
+        
+        # 出来高チェック
+        ok, indices = cls.check_volume(data)
+        if not ok:
+            all_ok = False
+            details['volume'] = f"{len(indices)} rows with invalid volume"
+        
+        return all_ok, details
