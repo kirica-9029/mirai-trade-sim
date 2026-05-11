@@ -1,0 +1,13 @@
+# 最小PoC 依存パッケージ
+pandas>=2.0.0
+numpy>=1.24.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# 将来の拡張向け
+ccxt>=4.0.0
+plotly>=5.17.0
+
+# オプション：ログ・テスト
+python-json-logger>=2.0.0
+pytest>=7.4.0
